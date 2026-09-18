@@ -1,0 +1,45 @@
+services:
+  app:
+    build: .
+    container_name: users-management-app
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    environment:
+      # Spring Boot map automatically variables from DB_HOST to db.host
+      - DB_HOST=mysql-db
+      - DB_PORT=3306
+      - DB_NAME=crud_usuarios
+      - DB_USERNAME=root
+      - DB_PASSWORD=123456
+    depends_on:
+      mysql-db:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  mysql-db:
+    image: mysql:8.0
+    container_name: mysql-db
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=123456
+      - MYSQL_DATABASE=crud_usuarios
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mysql-data:
