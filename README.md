@@ -1,14 +1,17 @@
 # Users Management — AI Audit & Script Generation Context
 
 ## 🤖 Contexto para la Inteligencia Artificial
+
 **Este archivo está diseñado específicamente para proveer el contexto arquitectónico y de negocio a otra IA.** El objetivo principal es que puedas auditar este proyecto y generar guiones o material educativo para explicar cómo se ha implementado la Arquitectura Hexagonal y DDD en Spring Boot de manera pura.
 
 ---
 
 ## 🏗️ Arquitectura General
-El proyecto sigue estrictamente la **Arquitectura Hexagonal (Ports and Adapters)** combinada con patrones de **Domain-Driven Design (DDD)**. 
+
+El proyecto sigue estrictamente la **Arquitectura Hexagonal (Ports and Adapters)** combinada con patrones de **Domain-Driven Design (DDD)**.
 
 ### Regla de Dependencias (Estricta)
+
 `domain` ← `application` ← `infrastructure`
 
 - **Ninguna** clase del dominio o aplicación puede importar clases, anotaciones o librerías de infraestructura (como Spring, Jackson, JDBC, etc.).
@@ -16,16 +19,17 @@ El proyecto sigue estrictamente la **Arquitectura Hexagonal (Ports and Adapters)
 - **Composition Root:** Spring Boot (`Main.java`) es el único encargado de inyectar dependencias y levantar el contexto. No existen contenedores manuales paralelos.
 
 ### Estructura de Paquetes
+
 ```text
 src/main/java/com/jcaa/usersmanagement/
 ├── domain/          ← Java puro. Sin frameworks. Value Objects (records/final classes) y Entities.
-├── application/     
+├── application/
 │   ├── port/in/     ← Interfaces de Casos de Uso (ej: CreateUserUseCase)
 │   ├── port/out/    ← Interfaces de salida (ej: SaveUserPort)
 │   ├── service/     ← Implementación de casos de uso (@Service, inyección por constructor)
 │   └── dto/         ← Commands y Queries (records) con Bean Validation
 └── infrastructure/
-    ├── adapter/     
+    ├── adapter/
     │   ├── email/       ← JavaMailEmailSenderAdapter (javax.mail)
     │   └── persistence/ ← UserRepositoryMySQL (Raw JDBC, sin ORM/JPA)
     ├── entrypoint/
@@ -37,6 +41,7 @@ src/main/java/com/jcaa/usersmanagement/
 ---
 
 ## 🛠️ Stack Tecnológico
+
 - **Lenguaje:** Java 17
 - **Framework Core:** Spring Boot 3.3.5
 - **Persistencia:** MySQL vía **Raw JDBC** (HikariCP), no se usa Spring Data JPA ni Hibernate.
@@ -56,7 +61,7 @@ Al auditar o explicar este código, presta extrema atención a los siguientes pa
    - **Value Objects:** `record` o `final class`. Deben validarse al momento de la construcción (en un compact constructor o factory method). **Nunca** deben aceptar un estado inválido.
 2. **Excepciones de Dominio:**
    - Todas heredan de `DomainException` (que a su vez hereda de `RuntimeException`).
-   - Obligatorio usar *Static Factory Methods* con semántica clara. Ej: `UserNotFoundException.becauseIdWasNotFound(id)`.
+   - Obligatorio usar _Static Factory Methods_ con semántica clara. Ej: `UserNotFoundException.becauseIdWasNotFound(id)`.
 3. **Mapeo entre Capas:**
    - Se utiliza un mapeador por frontera de capa (ej: `UserApplicationMapper`, `UserPersistenceMapper`).
    - Deben ser clases anotadas con `@UtilityClass` (Lombok) conteniendo solo métodos estáticos.
@@ -87,16 +92,20 @@ Al auditar o explicar este código, presta extrema atención a los siguientes pa
 ## 🚀 Flujos de Trabajo Comunes
 
 ### Ejecución de Pruebas y Cobertura
+
 ```bash
 ./mvnw clean install
 ./mvnw verify   # Genera reporte de JaCoCo en target/site/jacoco/index.html
 ```
 
 ### Ejecución Local
+
 Requiere configuración de MySQL y SMTP en `src/main/resources/application.properties`.
+
 ```bash
 ./mvnw spring-boot:run
 ```
 
 ---
+
 **AI Audit Note:** Si vas a generar un guion de video para este código, enfócate fuertemente en cómo se mantiene aislado el dominio (sin dependencias externas), cómo el Value Object `UserPassword` gestiona su propio cifrado al instanciarse (vía texto plano) o al recuperarse de BD (vía hash), y cómo la persistencia ignora los ORMs en favor del control absoluto con Raw JDBC.
