@@ -134,6 +134,12 @@
       <scope>compile</scope>
     </dependency>
 
+    <!-- Spring Kafka -->
+    <dependency>
+      <groupId>org.springframework.kafka</groupId>
+      <artifactId>spring-kafka</artifactId>
+    </dependency>
+
     <!-- ======================================================== -->
     <!-- Tests                                                      -->
     <!-- ======================================================== -->

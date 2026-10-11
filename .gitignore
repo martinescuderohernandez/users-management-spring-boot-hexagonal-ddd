@@ -33,6 +33,7 @@ build/
 
 ### VS Code ###
 .vscode/
+.env
 
 ### Mac OS ###
 .DS_Store
@@ -41,3 +42,5 @@ build/
 *.log
 
 /spec/
+
+*.p12

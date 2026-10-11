@@ -7,17 +7,19 @@ import lombok.Getter;
 @Getter
 public final class UserDeletedDomainEvent extends DomainEvent {
 
-  private static final String EVENT_NAME = "user.deleted";
+  private static final String EVENT_TYPE = "user.deleted";
 
   private final UserId userId;
 
   public UserDeletedDomainEvent(final UserId userId) {
-    super(EVENT_NAME);
+    super(EVENT_TYPE, userId.value());
     this.userId = userId;
   }
 
   @Override
   public Map<String, String> payload() {
-    return Map.of("id", userId.value());
+    return Map.of(
+        "id",        userId.value(),
+        "deletedAt", getOccurredOn().toString());
   }
 }

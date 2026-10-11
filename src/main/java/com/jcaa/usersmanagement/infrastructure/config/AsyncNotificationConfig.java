@@ -27,4 +27,22 @@ public class AsyncNotificationConfig {
     executor.initialize();
     return executor;
   }
+
+  /**
+   * Executor dedicado para publicación de eventos a Kafka.
+   * Pool separado del de emails para evitar contención entre ambas tareas asíncronas.
+   */
+  @Bean(name = "kafkaPublisherExecutor")
+  public Executor kafkaPublisherExecutor() {
+    final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+    executor.setCorePoolSize(2);
+    executor.setMaxPoolSize(4);
+    executor.setQueueCapacity(200);
+    executor.setThreadNamePrefix("kafka-publisher-");
+    executor.setWaitForTasksToCompleteOnShutdown(true);
+    executor.setAwaitTerminationSeconds(SHUTDOWN_WAIT_SECONDS);
+    executor.initialize();
+    return executor;
+  }
 }
+
