@@ -28,7 +28,6 @@ public class UpdateUserService implements UpdateUserUseCase {
   private final UpdateUserPort updateUserPort;
   private final GetUserByIdPort getUserByIdPort;
   private final GetUserByEmailPort getUserByEmailPort;
-  private final EmailNotificationService emailNotificationService;
   private final UserEventPublisherPort userEventPublisherPort;
   private final Validator validator;
 
@@ -48,7 +47,6 @@ public class UpdateUserService implements UpdateUserUseCase {
 
     // Publicación asíncrona al tópico users-topic DESPUÉS del commit en BD
     userEventPublisherPort.publish(new UserUpdatedDomainEvent(updatedUser));
-    emailNotificationService.notifyUserUpdated(updatedUser);
 
     return updatedUser;
   }

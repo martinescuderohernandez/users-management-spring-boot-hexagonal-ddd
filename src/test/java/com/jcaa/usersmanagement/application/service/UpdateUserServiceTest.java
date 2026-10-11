@@ -8,6 +8,8 @@ import com.jcaa.usersmanagement.application.port.out.GetUserByEmailPort;
 import com.jcaa.usersmanagement.application.port.out.GetUserByIdPort;
 import com.jcaa.usersmanagement.application.port.out.UpdateUserPort;
 import com.jcaa.usersmanagement.application.service.dto.command.UpdateUserCommand;
+import com.jcaa.usersmanagement.application.port.out.UserEventPublisherPort;
+import com.jcaa.usersmanagement.domain.event.UserUpdatedDomainEvent;
 import com.jcaa.usersmanagement.domain.enums.UserRole;
 import com.jcaa.usersmanagement.domain.enums.UserStatus;
 import com.jcaa.usersmanagement.domain.exception.UserAlreadyExistsException;
@@ -41,7 +43,7 @@ class UpdateUserServiceTest {
   @Mock private UpdateUserPort updateUserPort;
   @Mock private GetUserByIdPort getUserByIdPort;
   @Mock private GetUserByEmailPort getUserByEmailPort;
-  @Mock private EmailNotificationService emailNotificationService;
+  @Mock private UserEventPublisherPort userEventPublisherPort;
 
   private UpdateUserService service;
 
@@ -59,7 +61,7 @@ class UpdateUserServiceTest {
               updateUserPort,
               getUserByIdPort,
               getUserByEmailPort,
-              emailNotificationService,
+              userEventPublisherPort,
               validatorFactory.getValidator());
     }
 
@@ -76,8 +78,8 @@ class UpdateUserServiceTest {
   // ── flujo feliz
 
   @Test
-  @DisplayName("execute() actualiza el usuario y envía notificación cuando los datos son válidos")
-  void shouldUpdateUserAndNotifyWhenDataIsValid() {
+  @DisplayName("execute() actualiza el usuario y publica evento cuando los datos son válidos")
+  void shouldUpdateUserAndPublishEventWhenDataIsValid() {
     // Arrange
     final UpdateUserCommand command =
         new UpdateUserCommand(ID, "John Updated", EMAIL, null, "ADMIN", "ACTIVE");
@@ -92,7 +94,7 @@ class UpdateUserServiceTest {
     // Assert
     assertNotNull(result);
     verify(updateUserPort).update(any(UserModel.class));
-    verify(emailNotificationService).notifyUserUpdated(existingUser);
+    verify(userEventPublisherPort).publish(any(UserUpdatedDomainEvent.class));
   }
 
   // ── usuario no encontrado

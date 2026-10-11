@@ -9,7 +9,7 @@ import com.jcaa.usersmanagement.domain.valueobject.UserEmail;
 import com.jcaa.usersmanagement.domain.valueobject.UserId;
 import com.jcaa.usersmanagement.domain.valueobject.UserName;
 import com.jcaa.usersmanagement.domain.valueobject.UserPassword;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -55,7 +55,7 @@ class UserCreatedDomainEventTest {
     final UserCreatedDomainEvent event = new UserCreatedDomainEvent(user);
 
     // Act
-    final String result = event.getEventName();
+    final String result = event.getEventType();
 
     // Assert
     assertEquals("user.created", result);
@@ -67,12 +67,12 @@ class UserCreatedDomainEventTest {
   @DisplayName("occurredOn() no debe ser nulo y debe quedar acotado al instante de construcción")
   void shouldRecordOccurredOnAtCreationTime() {
     // Arrange
-    final LocalDateTime before = LocalDateTime.now();
+    final Instant before = Instant.now();
     final UserCreatedDomainEvent event = new UserCreatedDomainEvent(user);
-    final LocalDateTime after = LocalDateTime.now();
+    final Instant after = Instant.now();
 
     // Act
-    final LocalDateTime occurredOn = event.getOccurredOn();
+    final Instant occurredOn = event.getOccurredOn();
 
     // Assert
     assertNotNull(occurredOn, "occurredOn no debe ser null");

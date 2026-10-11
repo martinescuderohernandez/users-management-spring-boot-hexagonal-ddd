@@ -34,12 +34,6 @@
       DB_USERNAME: users_app
       DB_PASSWORD: local_users_password
       DB_SSL_MODE: DISABLED
-      SMTP_HOST: smtp.gmail.com
-      SMTP_PORT: "587"
-      SMTP_USERNAME: ${SMTP_USERNAME:-}
-      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
-      SMTP_FROM_ADDRESS: ${SMTP_FROM_ADDRESS:-}
-      SMTP_FROM_NAME: ${SMTP_FROM_NAME:-Gestion de Usuarios}
       JWT_SECRET: ${JWT_SECRET:-ZGV2ZWxvcG1lbnQtb25seS1qd3Qtc2VjcmV0LW11c3QtYmUtcmVwbGFjZWQ=}
       JWT_EXPIRATION_SECONDS: ${JWT_EXPIRATION_SECONDS:-900}
     ports:

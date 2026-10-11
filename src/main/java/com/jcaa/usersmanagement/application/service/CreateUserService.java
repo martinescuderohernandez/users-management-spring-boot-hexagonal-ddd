@@ -26,7 +26,6 @@ public class CreateUserService implements CreateUserUseCase {
 
   private final SaveUserPort saveUserPort;
   private final GetUserByEmailPort getUserByEmailPort;
-  private final EmailNotificationService emailNotificationService;
   private final UserEventPublisherPort userEventPublisherPort;
   private final Validator validator;
 
@@ -42,7 +41,6 @@ public class CreateUserService implements CreateUserUseCase {
 
     // Publicación asíncrona al tópico users-topic DESPUÉS del commit en BD
     userEventPublisherPort.publish(new UserCreatedDomainEvent(savedUser));
-    emailNotificationService.notifyUserCreated(savedUser, command.password());
 
     return savedUser;
   }

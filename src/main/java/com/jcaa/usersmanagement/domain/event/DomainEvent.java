@@ -33,6 +33,13 @@ public abstract class DomainEvent {
   }
 
   /**
+   * Alias de conveniencia para compatibilidad con código que usa getEventName().
+   */
+  public String getEventName() {
+    return this.eventType;
+  }
+
+  /**
    * Devuelve el bloque {@code data} del mensaje Kafka como pares clave-valor.
    * Cada subclase define qué campos expone.
    */

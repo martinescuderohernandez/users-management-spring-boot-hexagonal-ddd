@@ -3,7 +3,7 @@ package com.jcaa.usersmanagement.domain.event;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.jcaa.usersmanagement.domain.valueobject.UserId;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,7 +29,7 @@ class UserDeletedDomainEventTest {
     final UserDeletedDomainEvent event = new UserDeletedDomainEvent(new UserId(ID));
 
     // Act
-    final String result = event.getEventName();
+    final String result = event.getEventType();
 
     // Assert
     assertEquals("user.deleted", result);
@@ -41,12 +41,12 @@ class UserDeletedDomainEventTest {
   @DisplayName("occurredOn() no debe ser nulo y debe quedar acotado al instante de construcción")
   void shouldRecordOccurredOnAtCreationTime() {
     // Arrange
-    final LocalDateTime before = LocalDateTime.now();
+    final Instant before = Instant.now();
     final UserDeletedDomainEvent event = new UserDeletedDomainEvent(new UserId(ID));
-    final LocalDateTime after = LocalDateTime.now();
+    final Instant after = Instant.now();
 
     // Act
-    final LocalDateTime occurredOn = event.getOccurredOn();
+    final Instant occurredOn = event.getOccurredOn();
 
     // Assert
     assertNotNull(occurredOn, "occurredOn no debe ser null");

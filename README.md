@@ -19,9 +19,8 @@ El archivo `render.yaml` define el servicio web, el build con Docker y el despli
 automático de cada commit que llegue a la rama `main`.
 
 1. Crear un Blueprint en Render y seleccionar este repositorio.
-2. Completar en el panel los secretos marcados como requeridos: `DB_HOST`,
-   `DB_USERNAME`, `DB_PASSWORD`, `SMTP_USERNAME`, `SMTP_PASSWORD` y
-   `SMTP_FROM_ADDRESS`.
+2. Completar en el panel los secretos requeridos: `DB_HOST`,
+   `DB_USERNAME`, `DB_PASSWORD`.
 3. Usar una instancia MySQL accesible desde Internet o desde la red privada de
    Render y ejecutar `src/main/resources/schema.sql` una vez para crear el esquema.
 4. Desplegar el Blueprint. La API quedará disponible en el subdominio
