@@ -39,7 +39,7 @@ public class CreateUserService implements CreateUserUseCase {
     final UserModel userToSave = UserApplicationMapper.fromCreateCommandToModel(command);
     final UserModel savedUser = saveUserPort.save(userToSave);
 
-    // Publicación asíncrona al tópico users-topic DESPUÉS del commit en BD
+    // Publicación asíncrona al tópico user-created-topic DESPUÉS del commit en BD
     userEventPublisherPort.publish(new UserCreatedDomainEvent(savedUser));
 
     return savedUser;

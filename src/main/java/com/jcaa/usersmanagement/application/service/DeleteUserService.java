@@ -34,7 +34,7 @@ public class DeleteUserService implements DeleteUserUseCase {
     ensureUserExists(userId);
     deleteUserPort.delete(userId);
 
-    // Publicación asíncrona al tópico users-topic DESPUÉS de la eliminación en BD
+    // Publicación asíncrona al tópico user-deleted-topic DESPUÉS de la eliminación en BD
     userEventPublisherPort.publish(new UserDeletedDomainEvent(userId));
   }
 

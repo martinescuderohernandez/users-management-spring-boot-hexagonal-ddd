@@ -45,7 +45,7 @@ public class UpdateUserService implements UpdateUserUseCase {
         UserApplicationMapper.fromUpdateCommandToModel(command, current.getPassword());
     final UserModel updatedUser = updateUserPort.update(userToUpdate);
 
-    // Publicación asíncrona al tópico users-topic DESPUÉS del commit en BD
+    // Publicación asíncrona al tópico user-updated-topic DESPUÉS del commit en BD
     userEventPublisherPort.publish(new UserUpdatedDomainEvent(updatedUser));
 
     return updatedUser;

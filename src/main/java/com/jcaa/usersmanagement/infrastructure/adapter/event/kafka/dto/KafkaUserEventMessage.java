@@ -8,7 +8,7 @@ import java.util.Map;
 /**
  * DTO que representa el envelope (sobre) del mensaje que se publica en Kafka.
  *
- * <p>Estructura JSON publicada en {@code users-topic}:
+ * <p>Estructura JSON publicada en {@code user-created-topic}, {@code user-updated-topic} y {@code user-deleted-topic}:
  * <pre>{@code
  * {
  *   "eventId":       "uuid-v4",

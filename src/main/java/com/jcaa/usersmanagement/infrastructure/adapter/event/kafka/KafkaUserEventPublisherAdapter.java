@@ -38,12 +38,20 @@ public class KafkaUserEventPublisherAdapter implements UserEventPublisherPort {
 
   private final KafkaTemplate<String, KafkaUserEventMessage> kafkaTemplate;
 
-  @Value("${kafka.topic.users}")
-  private String usersTopic;
+  @Value("${kafka.topic.user-created:user-created-topic}")
+  private String userCreatedTopic;
+
+  @Value("${kafka.topic.user-updated:user-updated-topic}")
+  private String userUpdatedTopic;
+
+  @Value("${kafka.topic.user-deleted:user-deleted-topic}")
+  private String userDeletedTopic;
 
   @Async("kafkaPublisherExecutor")
   @Override
   public void publish(final DomainEvent event) {
+    final String targetTopic = resolveTopic(event);
+
     final KafkaUserEventMessage message = KafkaUserEventMessage.of(
         event.getEventId(),
         event.getEventType(),
@@ -53,14 +61,14 @@ public class KafkaUserEventPublisherAdapter implements UserEventPublisherPort {
 
     // La clave del ProducerRecord = aggregateId (userId) → garantiza orden por usuario
     final ProducerRecord<String, KafkaUserEventMessage> record =
-        new ProducerRecord<>(usersTopic, event.getAggregateId(), message);
+        new ProducerRecord<>(targetTopic, event.getAggregateId(), message);
 
     final CompletableFuture<SendResult<String, KafkaUserEventMessage>> future =
         kafkaTemplate.send(record);
 
     future.whenComplete((result, ex) -> {
       if (ex != null) {
-        log.error(LOG_FAILED, usersTopic, event.getEventType(), event.getEventId(), ex.getMessage(), ex);
+        log.error(LOG_FAILED, targetTopic, event.getEventType(), event.getEventId(), ex.getMessage(), ex);
       } else {
         log.info(LOG_PUBLISHED,
             result.getRecordMetadata().topic(),
@@ -69,5 +77,15 @@ public class KafkaUserEventPublisherAdapter implements UserEventPublisherPort {
             event.getEventId());
       }
     });
+  }
+
+  private String resolveTopic(final DomainEvent event) {
+    return switch (event.getEventType()) {
+      case "user.created" -> userCreatedTopic;
+      case "user.updated" -> userUpdatedTopic;
+      case "user.deleted" -> userDeletedTopic;
+      default -> throw new IllegalArgumentException(
+          "No hay un tópico configurado para el tipo de evento: " + event.getEventType());
+    };
   }
 }
