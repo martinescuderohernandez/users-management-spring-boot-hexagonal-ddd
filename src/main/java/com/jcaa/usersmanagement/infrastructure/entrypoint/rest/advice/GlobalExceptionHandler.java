@@ -1,5 +1,9 @@
 package com.jcaa.usersmanagement.infrastructure.entrypoint.rest.advice;
 
+import com.jcaa.usersmanagement.domain.exception.AccountConflictException;
+import com.jcaa.usersmanagement.domain.exception.AccountServiceException;
+import com.jcaa.usersmanagement.domain.exception.AccountTimeoutException;
+import com.jcaa.usersmanagement.domain.exception.AccountValidationException;
 import com.jcaa.usersmanagement.domain.exception.DomainException;
 import com.jcaa.usersmanagement.domain.exception.InvalidCredentialsException;
 import com.jcaa.usersmanagement.domain.exception.UserAlreadyExistsException;
@@ -55,6 +59,30 @@ public class GlobalExceptionHandler {
             .map(e -> e.getField() + ": " + e.getDefaultMessage())
             .collect(Collectors.joining(", "));
     return new ApiErrorResponse(HttpStatus.BAD_REQUEST.value(), message);
+  }
+
+  @ExceptionHandler(AccountConflictException.class)
+  @ResponseStatus(HttpStatus.CONFLICT)
+  public ApiErrorResponse handleAccountConflict(final AccountConflictException exception) {
+    return new ApiErrorResponse(HttpStatus.CONFLICT.value(), exception.getMessage());
+  }
+
+  @ExceptionHandler(AccountValidationException.class)
+  @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+  public ApiErrorResponse handleAccountValidation(final AccountValidationException exception) {
+    return new ApiErrorResponse(HttpStatus.UNPROCESSABLE_ENTITY.value(), exception.getMessage());
+  }
+
+  @ExceptionHandler(AccountTimeoutException.class)
+  @ResponseStatus(HttpStatus.GATEWAY_TIMEOUT)
+  public ApiErrorResponse handleAccountTimeout(final AccountTimeoutException exception) {
+    return new ApiErrorResponse(HttpStatus.GATEWAY_TIMEOUT.value(), exception.getMessage());
+  }
+
+  @ExceptionHandler(AccountServiceException.class)
+  @ResponseStatus(HttpStatus.BAD_GATEWAY)
+  public ApiErrorResponse handleAccountService(final AccountServiceException exception) {
+    return new ApiErrorResponse(HttpStatus.BAD_GATEWAY.value(), exception.getMessage());
   }
 
   @ExceptionHandler(DomainException.class)

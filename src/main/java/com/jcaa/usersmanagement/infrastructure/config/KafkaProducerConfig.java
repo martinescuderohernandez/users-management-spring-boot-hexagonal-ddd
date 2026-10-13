@@ -121,9 +121,14 @@ public class KafkaProducerConfig {
   private String extractToTempFile(final Resource resource, final String filename) throws IOException {
     final Path tempDir = Files.createTempDirectory("kafka-ssl-");
     final Path target  = tempDir.resolve(filename);
-    Files.copy(resource.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
+    if (resource != null && resource.exists()) {
+      Files.copy(resource.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
+      log.debug("[KafkaProducerConfig] Certificado SSL extraído: {}", target.toAbsolutePath());
+    } else {
+      log.warn("[KafkaProducerConfig] Certificado SSL ({}) no encontrado en classpath. Creando archivo temporal vacío para permitir arranque local.", filename);
+      Files.createFile(target);
+    }
     target.toFile().deleteOnExit();
-    log.debug("[KafkaProducerConfig] Certificado SSL extraído: {}", target.toAbsolutePath());
     return target.toAbsolutePath().toString();
   }
 
