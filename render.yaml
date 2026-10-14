@@ -23,3 +23,17 @@ services:
         generateValue: true
       - key: JWT_EXPIRATION_SECONDS
         value: "900"
+      - key: ACCOUNT_SERVICE_URL
+        sync: false
+      - key: KAFKA_SERVICE_URI
+        sync: false
+      - key: KAFKA_TRUSTSTORE_LOCATION
+        value: "file:/etc/secrets/truststore.p12"
+      - key: KAFKA_TRUSTSTORE_PASSWORD
+        sync: false
+      - key: KAFKA_KEYSTORE_LOCATION
+        value: "file:/etc/secrets/keystore.p12"
+      - key: KAFKA_KEYSTORE_PASSWORD
+        sync: false
+      - key: KAFKA_KEY_PASSWORD
+        sync: false
