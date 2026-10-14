@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,6 +51,9 @@ public class KafkaProducerConfig {
   @Value("${kafka.ssl.truststore.location}")
   private Resource truststoreResource;
 
+  @Value("${kafka.ssl.truststore.base64:}")
+  private String truststoreBase64;
+
   @Value("${kafka.ssl.truststore.password}")
   private String truststorePassword;
 
@@ -58,6 +62,9 @@ public class KafkaProducerConfig {
 
   @Value("${kafka.ssl.keystore.location}")
   private Resource keystoreResource;
+
+  @Value("${kafka.ssl.keystore.base64:}")
+  private String keystoreBase64;
 
   @Value("${kafka.ssl.keystore.password}")
   private String keystorePassword;
@@ -82,13 +89,12 @@ public class KafkaProducerConfig {
     props.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);  // exactly-once dentro del producer
 
     // --- SSL (Aiven) ---
-    // Los .p12 están dentro del JAR (classpath). Kafka espera rutas de sistema de archivos,
-    // así que los extraemos a un directorio temporal al arrancar.
+    // Los .p12 pueden pasarse por Base64 (ideal para Render/Cloud) o leerse del classpath/filesystem.
     props.put("security.protocol", "SSL");
-    props.put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, extractToTempFile(truststoreResource, "truststore.p12"));
+    props.put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, extractToTempFile(truststoreResource, truststoreBase64, "truststore.p12"));
     props.put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, truststorePassword);
     props.put(SslConfigs.SSL_TRUSTSTORE_TYPE_CONFIG, truststoreType);
-    props.put(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, extractToTempFile(keystoreResource, "keystore.p12"));
+    props.put(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, extractToTempFile(keystoreResource, keystoreBase64, "keystore.p12"));
     props.put(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, keystorePassword);
     props.put(SslConfigs.SSL_KEYSTORE_TYPE_CONFIG, keystoreType);
     props.put(SslConfigs.SSL_KEY_PASSWORD_CONFIG, keyPassword);
@@ -115,17 +121,25 @@ public class KafkaProducerConfig {
   // -------------------------------------------------------------------------
 
   /**
-   * Extrae un recurso de classpath a un archivo temporal en el sistema de archivos
-   * para que la librería Kafka (que no entiende classpath://) pueda acceder a él.
+   * Extrae el contenido de un recurso o de una cadena Base64 a un archivo temporal en el sistema de archivos
+   * para que la librería Kafka pueda acceder a él.
    */
-  private String extractToTempFile(final Resource resource, final String filename) throws IOException {
+  private String extractToTempFile(
+      final Resource resource,
+      final String base64Content,
+      final String filename) throws IOException {
     final Path tempDir = Files.createTempDirectory("kafka-ssl-");
     final Path target  = tempDir.resolve(filename);
-    if (resource != null && resource.exists()) {
+
+    if (base64Content != null && !base64Content.isBlank()) {
+      final byte[] decoded = Base64.getDecoder().decode(base64Content.trim());
+      Files.write(target, decoded);
+      log.info("[KafkaProducerConfig] Certificado SSL ({}) cargado exitosamente desde variable Base64.", filename);
+    } else if (resource != null && resource.exists()) {
       Files.copy(resource.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
-      log.debug("[KafkaProducerConfig] Certificado SSL extraído: {}", target.toAbsolutePath());
+      log.info("[KafkaProducerConfig] Certificado SSL extraído: {}", target.toAbsolutePath());
     } else {
-      log.warn("[KafkaProducerConfig] Certificado SSL ({}) no encontrado en classpath. Creando archivo temporal vacío para permitir arranque local.", filename);
+      log.warn("[KafkaProducerConfig] Certificado SSL ({}) no encontrado en classpath/filesystem. Creando archivo temporal vacío para permitir arranque local.", filename);
       Files.createFile(target);
     }
     target.toFile().deleteOnExit();
